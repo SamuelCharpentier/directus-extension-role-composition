@@ -1,0 +1,11 @@
+node_modules
+dist
+coverage
+.kilo/
+.env
+.env.*
+!.env.example
+*.log
+.DS_Store
+!.env.test.example
+

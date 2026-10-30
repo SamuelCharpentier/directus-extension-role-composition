@@ -1,0 +1,76 @@
+{
+	"name": "directus-extension-role-composition",
+	"description": "Compose a Directus role from the permissions of several source roles.",
+	"icon": "account_tree",
+	"version": "0.1.0",
+	"keywords": [
+		"directus",
+		"directus-extension",
+		"directus-extension-bundle",
+		"directus-extension-hook",
+		"directus-extension-endpoint",
+		"roles",
+		"permissions"
+	],
+	"license": "MIT",
+	"author": {
+		"name": "Samuel Charpentier",
+		"email": "scharpentier0@gmail.com"
+	},
+	"type": "module",
+	"files": [
+		"dist"
+	],
+	"directus:extension": {
+		"type": "bundle",
+		"path": {
+			"app": "dist/app.js",
+			"api": "dist/api.js"
+		},
+		"entries": [
+			{
+				"type": "hook",
+				"name": "role-composition-hook",
+				"source": "src/hook/index.ts",
+				"sandbox": {
+					"enabled": false
+				}
+			},
+			{
+				"type": "endpoint",
+				"name": "role-composition",
+				"source": "src/endpoint/index.ts",
+				"sandbox": {
+					"enabled": false
+				}
+			}
+		],
+		"host": "^12.0.0"
+	},
+	"scripts": {
+		"typecheck": "tsc --noEmit",
+		"test": "vitest run",
+		"test:watch": "vitest",
+		"test:coverage": "vitest run --coverage",
+		"test:start": "npm run build:only && docker compose -f docker-compose.test.yml up -d --wait",
+		"test:stop": "docker compose -f docker-compose.test.yml stop",
+		"test:rm": "docker compose -f docker-compose.test.yml down -v",
+		"test:reset": "docker compose -f docker-compose.test.yml down -v && npm run test:start",
+		"test:seed": "node test/seed.mjs",
+		"test:logs": "docker compose -f docker-compose.test.yml logs -f directus",
+		"build": "npm run typecheck && npm run test && directus-extension build",
+		"build:only": "directus-extension build",
+		"dev": "directus-extension build -w --no-minify",
+		"link": "directus-extension link",
+		"validate": "directus-extension validate"
+	},
+	"devDependencies": {
+		"@directus/extensions-sdk": "18.0.6",
+		"@directus/types": "18.0.0",
+		"@types/node": "^25.4.0",
+		"@vitest/coverage-v8": "^4.1.5",
+		"typescript": "^5.9.3",
+		"vitest": "^4.1.4",
+		"vue": "^3.5.43"
+	}
+}

@@ -1,0 +1,54 @@
+name: role-composition-test
+
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: directus
+      POSTGRES_USER: directus
+      POSTGRES_PASSWORD: directus
+    volumes:
+      - dbdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U directus -d directus"]
+      interval: 2s
+      timeout: 2s
+      retries: 30
+
+  directus:
+    image: directus/directus:12.5.1
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "8160:8055"
+    env_file:
+      - .env.test
+    environment:
+      SECRET: role-composition-test-secret-change-me
+      ADMIN_EMAIL: admin@example.com
+      ADMIN_PASSWORD: test-password
+      PUBLIC_URL: http://localhost:8160
+      DB_CLIENT: pg
+      DB_HOST: db
+      DB_PORT: "5432"
+      DB_DATABASE: directus
+      DB_USER: directus
+      DB_PASSWORD: directus
+      EXTENSIONS_PATH: /directus/extensions
+      EXTENSIONS_AUTO_RELOAD: "false"
+      CACHE_ENABLED: "true"
+      CACHE_STORE: memory
+      RATE_LIMITER_ENABLED: "false"
+      IMPORT_IP_DENY_LIST: ""
+      ROLE_COMPOSITION_BOOTSTRAP: full
+      ROLE_COMPOSITION_RECONCILE_INTERVAL_SECONDS: "10"
+      ROLE_COMPOSITION_RECONCILE_ON_START: "true"
+    volumes:
+      - ./package.json:/directus/extensions/directus-extension-role-composition/package.json:ro
+      - ./dist:/directus/extensions/directus-extension-role-composition/dist:ro
+      - uploads:/directus/uploads
+
+volumes:
+  dbdata:
+  uploads:
